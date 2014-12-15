@@ -88,10 +88,9 @@ LogisticRegression.prototype.gradientDescent = function (iterations) {
                 )
             )
         );
+        //console.log (this.cost (Theta));
     }
     this.Theta = Theta.valueOf ().map (function (a) { return a[0]; });
-    console.log ('Theta = ');
-    console.log (this.Theta);
 };
 
 return new LogisticRegression;
