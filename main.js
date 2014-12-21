@@ -1,3 +1,5 @@
+
+// univariate 
 (function () {
     var lg = logisticRegression;
     var trainingSet = [
@@ -22,9 +24,9 @@
     var h = lg.getH (lg.Theta);
     var chart$ = $('<div>').attr ('class', 'chart');
     $('body').append (chart$);
-    chart = new mlCharts.TrainingSetChart (
-        chart$.get (0), trainingSet, function (x) {
-
+    var chart = new mlCharts.TrainingSetChart (
+        chart$.get (0), trainingSet, 'Univariate Logistic Regression');
+    chart.plotDecisionBoundary (function (x) {
         return (-lg.Theta[0] / lg.Theta[1]);
     });
     chart.plot ();
@@ -46,12 +48,13 @@
         [25],
     ].forEach (function (a) {
         var guess = h ([1].concat (a));
-        chart.addData ([a, guess >= 0.5 ? 3 : 2]);
-        chart.plot ();
+        var guessedClass = guess >= 0.5 ? 1 : 0;
+        chart.plotGuess (
+            [a, guessedClass], guessedClass, guessedClass);
     });
 }) ();
 
-
+// multivariate
 (function () {
     var lg = logisticRegression;
     var trainingSet = [
@@ -70,16 +73,17 @@
     var h = lg.getH (lg.Theta);
     var chart$ = $('<div>').attr ('class', 'chart');
     $('body').append (chart$);
-    chart = new mlCharts.TrainingSetChart (
-        chart$.get (0), trainingSet, function (x) {
+    var chart = new mlCharts.TrainingSetChart (
+        chart$.get (0), trainingSet, 'Multivariate Logistic Regression');
+    chart.plot ();
+    chart.plotDecisionBoundary (function (x) {
         return ((lg.Theta[0] + lg.Theta[1] * x) / -lg.Theta[2]);
     });
-    chart.plot ();
 
     return;
     [ 
         [5, 8],
-        [7, 1],
+        //[7, 1],
         [1, 4],
         [2, 4],
         [2, 1],
@@ -89,17 +93,86 @@
         [4, 4],
     ].forEach (function (a) {
         var guess = h ([1].concat (a));
-        chart.addData ([a, guess >= 0.5 ? 2 : 3]);
-        chart.plot ();
+        chart.plotGuess ([a, 0], guess >= 0.5 ? 1 : 0);
     });
-//    console.log (h (-8));
-//    console.log (h (-2));
-//    console.log (h (-.5));
-//    console.log (h (0));
-//    console.log ('should be 1');
-//    console.log (h (1));
-//    console.log (h (4));
-//    console.log (h (5));
-//    console.log (h (7));
 }) ();
 
+// multivariate 1 vs. all
+(function () {
+    var lg = logisticRegression;
+    var trainingSet = [
+        [[0, 2], 0],
+        [[.25, 3], 0],
+        [[.5, 8], 0],
+        [[1, 0], 1],
+        [[1.5, 1], 1],
+        [[4, 2], 1],
+        [[5, 2], 1],
+        [[6, 2], 1],
+        [[6, 7], 2],
+        [[8, 5], 2],
+        [[8, 8], 2],
+    ];
+    lg.alpha = 0.1;
+    var classifiers = [];
+    var chart$ = $('<div>').attr ('class', 'chart');
+    $('body').append (chart$);
+    var chart = new mlCharts.TrainingSetChart (
+        chart$.get (0), [],
+        'Multivariate Logistic Regression (1 v all)');
+    var oneVsAllTrainingSet;
+    [0, 1, 2].every (function (a) {
+        oneVsAllTrainingSet = $.extend (true, [], trainingSet).
+            map (function (b) {
+                b[1] = b[1] === a ? 0 : 1;
+                return b;
+            });
+        lg.setTrainingSet (oneVsAllTrainingSet);
+        lg.gradientDescent (1000);
+        classifiers.push (lg.getH (lg.Theta));
+        chart.data = oneVsAllTrainingSet;
+        chart.plot (a, -1);
+        chart.plotDecisionBoundary (function (x) {
+            return ((lg.Theta[0] + lg.Theta[1] * x) / -lg.Theta[2]);
+        }, a, -1);
+        return true; 
+    });
+
+    chart.clickFn = function (x, y) {
+        var a = [x, y];
+        var guess;
+        var guessedClass = null;
+        var min = Infinity;
+        for (var i in classifiers) {
+            if ((guess = classifiers[i] ([1].concat (a))) < min) {
+                min = guess;
+                guessedClass = i;
+            }
+        }
+        chart.plotGuess ([a, 0], guessedClass);
+    };
+    
+    var guesses = [];
+    [ 
+//        [5, 8],
+        //[7, 1],
+//        [1, 4],
+//        [2, 4],
+//        [2, 1],
+//        [4, 1],
+//        [4, 8],
+//        [1.5, 5],
+        //[4, 4],
+    ].forEach (function (a) {
+        var guess;
+        var guessedClass = null;
+        var min = Infinity;
+        for (var i in classifiers) {
+            if ((guess = classifiers[i] ([1].concat (a))) < min) {
+                min = guess;
+                guessedClass = i;
+            }
+        }
+        chart.plotGuess ([a, 0], guessedClass);
+    });
+}) ();
