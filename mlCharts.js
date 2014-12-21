@@ -12,7 +12,7 @@ function TrainingSetChart (elem, data, title, dimension) {
     this.title = title;
     this.svg = d3.select (this.elem).append ('svg');
     $(this.elem).prepend ($('<div>', {
-        text: this.title
+        html: this.title
     }));
     this.colors = ['red', 'blue', 'green', 'orange', 'teal'];
     this._setUpClickBehavior ();
@@ -33,10 +33,6 @@ TrainingSetChart.prototype._setUpClickBehavior = function () {
         var xCoord = (x / width) * viewBox[2] + viewBox[0];
         var yCoord = viewBox[3] - 
             ((y / height) * viewBox[3]) + viewBox[1];
-//        console.log ('xCoord = ');
-//        console.log (xCoord);
-//        console.log ('yCoord = ');
-//        console.log (yCoord);
         that.clickFn (xCoord, yCoord);
     });
 };
@@ -216,22 +212,6 @@ TrainingSetChart.prototype.plot = function (class1, class2) {
         that._plotExamples (false, class1);
         if (class2 !== -1)
             that._plotExamples (true, class2);
-//        this.svg.selectAll ('rect')
-//                .data (this.data.filter (function (a) { return !a[1]; }))
-//            .enter ()
-//                .append ('rect')
-//                .each (function (d) {
-//                    var x = d[0][0],
-//                        y = maxY - (d[0].length > 1 ? d[0][1] : d[1]);
-//                    d3.select (this).attr ({
-//                        x: x,
-//                        y: y,
-//                        width: .5,
-//                        height: .5,
-//                        fill: 'red',
-//                    })
-//                })
-//        ;
     }
 };
 

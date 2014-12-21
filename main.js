@@ -152,7 +152,6 @@
         chart.plotGuess ([a, 0], guessedClass);
     };
     
-    var guesses = [];
     [ 
 //        [5, 8],
         //[7, 1],
