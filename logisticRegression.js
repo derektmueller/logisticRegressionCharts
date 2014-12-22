@@ -1,6 +1,6 @@
 //#!/usr/bin/node
 
-var mathjs = require ('mathjs');
+if (typeof require !== 'undefined') var mathjs = require ('mathjs');
 
 var LogisticRegression = (function () {
 
@@ -26,10 +26,6 @@ LogisticRegression.prototype.cost = function (Theta) {
                 this.trainingSet.map (get (1)),
                 this.trainingSet.map (function (a) {
                     return mathjs.log (h (a[0]));
-                }).map (function (a) {
-                    if (a === -Infinity) return Number.MIN_VALUE;
-                    if (a === Infinity) return Number.MAX_VALUE;
-                    return a;
                 })
             ),
             mathjs.dotMultiply (
@@ -39,10 +35,6 @@ LogisticRegression.prototype.cost = function (Theta) {
                 ),
                 this.trainingSet.map (function (a) {
                     return mathjs.log (1 - h (a[0]));
-                }).map (function (a) {
-                    if (a === -Infinity) return Number.MIN_VALUE;
-                    if (a === Infinity) return Number.MAX_VALUE;
-                    return a;
                 })
             )
         )
@@ -51,25 +43,12 @@ LogisticRegression.prototype.cost = function (Theta) {
 
 LogisticRegression.prototype.getH = function (Theta) {
     return function (X) {
-        var ret = mathjs.divide (
-            1,
-            mathjs.add (
-                1,
-                mathjs.pow (
-                    Math.E, 
-                    mathjs.multiply (
-                        -1,
-                        mathjs.number (
-                            mathjs.multiply (
-                                mathjs.transpose (Theta), 
-                                X
-                            )
-                        )
-                    )
-                )
-            )
-        );
-        return ret;
+        return 1 / (1 + Math.pow (
+            Math.E, 
+            -mathjs.multiply (
+                mathjs.transpose (Theta), 
+                X
+            )));
     }
 };
 
@@ -108,7 +87,7 @@ LogisticRegression.prototype.gradientDescent = function (iterations) {
                 )
             )
         );
-        console.log (this.cost (Theta));
+        //console.log (this.cost (Theta));
     }
     this.Theta = Theta.valueOf ().map (function (a) { return a[0]; });
 };

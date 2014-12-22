@@ -1,7 +1,7 @@
 
 // univariate 
 (function () {
-    var lg = logisticRegression;
+    var lg = new LogisticRegression;
     var trainingSet = [
         [[0], 0],
         [[.25], 0],
@@ -56,7 +56,7 @@
 
 // multivariate
 (function () {
-    var lg = logisticRegression;
+    var lg = new LogisticRegression;
     var trainingSet = [
         [[0, 2], 0],
         [[.25, 3], 0],
@@ -99,7 +99,7 @@
 
 // multivariate 1 vs. all
 (function () {
-    var lg = logisticRegression;
+    var lg = new LogisticRegression;
     var trainingSet = [
         [[0, 2], 0],
         [[.25, 3], 0],
