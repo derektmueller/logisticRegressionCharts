@@ -1,6 +1,8 @@
 //#!/usr/bin/node
 
-var logisticRegression = (function () {
+var mathjs = require ('mathjs');
+
+var LogisticRegression = (function () {
 
 function get (i) {
     return function (a) {
@@ -23,7 +25,11 @@ LogisticRegression.prototype.cost = function (Theta) {
             mathjs.dotMultiply (
                 this.trainingSet.map (get (1)),
                 this.trainingSet.map (function (a) {
-                    return Math.log (h (a[0]));
+                    return mathjs.log (h (a[0]));
+                }).map (function (a) {
+                    if (a === -Infinity) return Number.MIN_VALUE;
+                    if (a === Infinity) return Number.MAX_VALUE;
+                    return a;
                 })
             ),
             mathjs.dotMultiply (
@@ -32,7 +38,11 @@ LogisticRegression.prototype.cost = function (Theta) {
                     this.trainingSet.map (get (1))
                 ),
                 this.trainingSet.map (function (a) {
-                    return Math.log (1 - h (a[0]));
+                    return mathjs.log (1 - h (a[0]));
+                }).map (function (a) {
+                    if (a === -Infinity) return Number.MIN_VALUE;
+                    if (a === Infinity) return Number.MAX_VALUE;
+                    return a;
                 })
             )
         )
@@ -41,20 +51,30 @@ LogisticRegression.prototype.cost = function (Theta) {
 
 LogisticRegression.prototype.getH = function (Theta) {
     return function (X) {
-        return 1 / (1 + Math.pow (
-            Math.E, 
-            -mathjs.number (
-                mathjs.multiply (
-                    mathjs.transpose (Theta), 
-                    X
+        var ret = mathjs.divide (
+            1,
+            mathjs.add (
+                1,
+                mathjs.pow (
+                    Math.E, 
+                    mathjs.multiply (
+                        -1,
+                        mathjs.number (
+                            mathjs.multiply (
+                                mathjs.transpose (Theta), 
+                                X
+                            )
+                        )
+                    )
                 )
             )
-        ));
+        );
+        return ret;
     }
 };
 
 LogisticRegression.prototype.setTrainingSet = function (set) {
-    this.trainingSet = $.extend (true, [], set);
+    this.trainingSet = JSON.parse (JSON.stringify (set));
     this.trainingSet.forEach (function (a) {
         a[0] = [1].concat (a[0]);
     });
@@ -88,14 +108,16 @@ LogisticRegression.prototype.gradientDescent = function (iterations) {
                 )
             )
         );
-        //console.log (this.cost (Theta));
+        console.log (this.cost (Theta));
     }
     this.Theta = Theta.valueOf ().map (function (a) { return a[0]; });
 };
 
-return new LogisticRegression;
+return LogisticRegression;
 
 }) ();
+
+if (typeof module !== 'undefined') module.exports = LogisticRegression;
 
 //GLOBAL.test = function () {
 //    var lg = logisticRegression;
