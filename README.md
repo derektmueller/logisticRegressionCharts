@@ -1,3 +1,1 @@
-
-###www.derekmueller.info/logisticRegressionCharts
-
+https://derekmueller.info/views/logisticRegression.html
